@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-#   check_bacula_client  Nagios plugin to check the bacula clients
+#   check_bacula_client  Nagios plugin to check Bacula client backups
 #   Copyright (C) 2010  Tom Payne
 #
 #   This program is free software: you can redistribute it and/or modify
