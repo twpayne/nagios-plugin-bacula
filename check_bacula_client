@@ -35,9 +35,11 @@ def main(argv):
     parser.add_option('-H', metavar='ADDRESS', dest='host')
     parser.add_option('-w', metavar='HOURS', type=int, dest='warning')
     parser.add_option('-c', metavar='HOURS', type=int, dest='critical')
+    parser.add_option('-b', metavar='PATH', dest='bconsole')
+    parser.set_defaults(bconsole='/usr/sbin/bconsole')
     options, args = parser.parse_args(argv[1:])
     exit_status, message = OK, None
-    child = pexpect.spawn('/usr/sbin/bconsole', ['-n'])
+    child = pexpect.spawn(options.bconsole, ['-n'])
     try:
         child.expect(r'\n\*')
         child.sendline('status client=%s' % options.host)
