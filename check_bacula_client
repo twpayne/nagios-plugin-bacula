@@ -61,7 +61,7 @@ def main(argv):
             exit_status = WARNING
         if options.critical and age > timedelta(seconds=3600 * options.critical):
             exit_status = CRITICAL
-        message = '%s, %d files, %sB, %s (%d hours ago)' % (level, files, bytes, finished, 24 * age.days + age.seconds / 3600)
+        message = '%s, %d files, %sB, %s (%.1f hours ago)' % (level, files, bytes, finished, (24.0 * age.days + age.seconds) / 3600)
     except RuntimeError:
         exit_status, message = (CRITICAL, str(sys.exc_info()[1]))
     child.sendeof()
