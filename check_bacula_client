@@ -18,7 +18,7 @@
 
 
 from datetime import datetime, timedelta
-from optparse import OptionParser
+from optparse import OptionParser, OptionValueError
 import re
 import sys
 import time
@@ -29,12 +29,20 @@ import pexpect
 OK, WARNING, CRITICAL, UNKNOWN = xrange(0, 4)
 status_message = 'OK WARNING CRITICAL UNKNOWN'.split()
 
+MULTIPLIERS = {'s': 1, 'm': 60, 'h': 3600, 'd': 86400, 'w': 604800}
+
+def parse_period(option, opt_str, value, parser):
+    m = re.match(r'(\d+(?:\.\d+)?)(%s)\Z' % '|'.join(MULTIPLIERS.keys()), value)
+    if not m:
+        raise OptionValueError('invalid period - %s' % value)
+    setattr(parser.values, option.dest, timedelta(seconds=float(m.group(1)) * MULTIPLIERS[m.group(2)]))
+
 
 def main(argv):
     parser = OptionParser()
     parser.add_option('-H', metavar='ADDRESS', dest='host', help='client name')
-    parser.add_option('-w', metavar='n', type=int, dest='warning', help='generate warning if last successful backup older than n hours')
-    parser.add_option('-c', metavar='n', type=int, dest='critical', help='generate critical if last successful backup older than n hours')
+    parser.add_option('-w', metavar='PERIOD', type=str, dest='warning', action='callback', callback=parse_period, help='generate warning if last successful backup older than PERIOD')
+    parser.add_option('-c', metavar='PERIOD', type=str, dest='critical', action='callback', callback=parse_period, help='generate critical if last successful backup older than PERIOD')
     parser.add_option('-b', metavar='PATH', dest='bconsole', help='path to bconsole')
     parser.set_defaults(bconsole='/usr/sbin/bconsole')
     options, args = parser.parse_args(argv[1:])
@@ -59,9 +67,9 @@ def main(argv):
         if job_id is None:
             raise RuntimeError('no terminated jobs')
         age = datetime.now() - finished
-        if options.warning and age > timedelta(seconds=3600 * options.warning):
+        if options.warning and age > options.warning:
             exit_status = WARNING
-        if options.critical and age > timedelta(seconds=3600 * options.critical):
+        if options.critical and age > options.critical:
             exit_status = CRITICAL
         message = '%s, %d files, %sB, %s (%.1f hours ago)' % (level, files, bytes, finished, (24.0 * age.days + age.seconds) / 3600)
     except RuntimeError:
