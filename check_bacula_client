@@ -40,18 +40,9 @@ def main(argv):
     child = pexpect.spawn('/usr/sbin/bconsole', ['-n'])
     try:
         child.expect(r'\n\*')
-        child.sendline('status client')
-        child.expect(r'Select Client \(File daemon\) resource \(\d+-\d+\): ')
-        index = None
-        r = re.compile(r'\s*(\d+):\s+%s' % re.escape(options.host))
-        for line in child.before.splitlines():
-            m = r.match(line)
-            if m:
-                index = int(m.group(1))
-        if index is None:
+        child.sendline('status client=%s' % options.host)
+        if child.expect_list([re.compile(r'Terminated Jobs:'), re.compile(r'Error: Client resource .* does not exist.')]):
             raise RuntimeError('unknown client %s' % options.host)
-        child.sendline(str(index))
-        child.expect('Terminated Jobs:')
         child.expect(r'\n\*')
         r = re.compile(r'\s*(\d+)\s+(\S+)\s+(\S+)\s+(\d+\.\d+\s+[KMGTP]|0)\s+OK\s+(\S+\s+\S+)\s+%s' % re.escape(options.host))
         job_id = level = files = bytes = finished = None
