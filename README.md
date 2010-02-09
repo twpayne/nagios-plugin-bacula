@@ -7,7 +7,7 @@ check_bacula_client
 Dependencies
 ------------
 
-* [Python](http://www.python.org) version 2.4
+* [Python](http://www.python.org) >= 2.4 < 3.0
 * [pexpect](http://pexpect.sourceforge.net/)
 
 
@@ -29,7 +29,7 @@ Usage
 
 * `-H CLIENT` client name
 * `-w PERIOD` generate warning if last successful backup older than `PERIOD`
-* `-c PERIOD` generate critical if last successful backup older than PERIOD
+* `-c PERIOD` generate critical if last successful backup older than `PERIOD`
 * `-b PATH` path to `bconsole`
 
 `PERIOD` is an floating point number followed by `m` for minutes, `h` for hours, `d` for days, or `w` for weeks.
