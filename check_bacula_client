@@ -72,7 +72,7 @@ def main(argv):
             exit_status = CRITICAL
         message = '%s, %d files, %sB, %s (%d hours ago)' % (level, files, bytes, finished, 24 * age.days + age.seconds / 3600)
     except RuntimeError:
-        exit_status, message = (CRITICAL, [str(sys.exc_info()[1])])
+        exit_status, message = (CRITICAL, str(sys.exc_info()[1]))
     child.sendeof()
     child.expect(pexpect.EOF)
     print '%s: %s' % (status_message[exit_status], message)
