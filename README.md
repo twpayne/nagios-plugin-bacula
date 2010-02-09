@@ -1,7 +1,7 @@
 check_bacula_client
 ===================
 
-`check_bacula_client` is a [Nagios](http://www.nagios.org) plugin to check [Bacula](http://www.bacula.org/) client backups.  It will warn or indicate a critical state if the last successful backup for a client is older than a psecified period.  It uses the `bconsole` program to interact with the Bacula Director and therefore is independent of the client and the database used by the Bacula Director.
+`check_bacula_client` is a [Nagios](http://www.nagios.org) plugin to check [Bacula](http://www.bacula.org/) client backups.  It will warn or indicate a critical state if the last successful backup for a client is older than a specified period.  It uses the `bconsole` program to interact with the Bacula Director and therefore is independent of the client and the database used by the Bacula Director.
 
 
 Dependencies
