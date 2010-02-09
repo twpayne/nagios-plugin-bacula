@@ -30,6 +30,8 @@ OK, WARNING, CRITICAL, UNKNOWN = xrange(0, 4)
 status_message = 'OK WARNING CRITICAL UNKNOWN'.split()
 
 MULTIPLIERS = {'s': 1, 'm': 60, 'h': 3600, 'd': 86400, 'w': 604800}
+DIVISORS = ((60, 'minutes'), (60, 'hours'), (24, 'days'), (7, 'weeks'))
+
 
 def parse_period(option, opt_str, value, parser):
     m = re.match(r'(\d+(?:\.\d+)?)(%s)\Z' % '|'.join(MULTIPLIERS.keys()), value)
@@ -71,7 +73,14 @@ def main(argv):
             exit_status = WARNING
         if options.critical and age > options.critical:
             exit_status = CRITICAL
-        message = '%s, %d files, %sB, %s (%.1f hours ago)' % (level, files, bytes, finished, (24.0 * age.days + age.seconds) / 3600)
+        age, units = 24.0 * 60 * 60 * age.days + age.seconds, 'seconds'
+        for d, u in DIVISORS:
+            if age < d:
+                break
+            else:
+                age /= d
+                units = u
+        message = '%s, %d files, %sB, %s (%.1f %s ago)' % (level, files, bytes, finished, age, units)
     except RuntimeError:
         exit_status, message = (CRITICAL, str(sys.exc_info()[1]))
     child.sendeof()
