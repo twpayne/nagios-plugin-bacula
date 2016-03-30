@@ -42,21 +42,26 @@ def parse_period(option, opt_str, value, parser):
 
 def main(argv):
     parser = OptionParser()
-    parser.add_option('-H', metavar='ADDRESS', dest='host', help='client name')
+    parser.add_option('-H', metavar='FD_NAME', dest='hostid', help='client file director name')
+    parser.add_option('-B', metavar='BACKUP_NAME', dest='backupid', help='backup job name')
     parser.add_option('-w', metavar='PERIOD', type=str, dest='warning', action='callback', callback=parse_period, help='generate warning if last successful backup older than PERIOD')
     parser.add_option('-c', metavar='PERIOD', type=str, dest='critical', action='callback', callback=parse_period, help='generate critical if last successful backup older than PERIOD')
     parser.add_option('-b', metavar='PATH', dest='bconsole', help='path to bconsole')
     parser.set_defaults(bconsole='/usr/sbin/bconsole')
     options, args = parser.parse_args(argv[1:])
+    if not options.hostid or not options.backupid:
+      parser.error("-H and -B should be specified.")
     exit_status, message = OK, None
     child = pexpect.spawn(options.bconsole, ['-n'])
+    hostid = options.hostid
+    backupid = options.backupid
     try:
         child.expect(r'\n\*')
-        child.sendline('status client=%s' % options.host)
-        if child.expect_list([re.compile(r'Terminated Jobs:'), re.compile(r'Error: Client resource .* does not exist.')]):
-            raise RuntimeError('unknown client %s' % options.host)
+        child.sendline('status client=%s' % hostid)
+        if child.expect_list([re.compile(r'Terminated Jobs:'), re.compile(r'Error: Client resource .* does not exist.'), pexpect.TIMEOUT]):
+            raise RuntimeError('Timeout or unknown client: %s' % hostid)
         child.expect(r'\n\*')
-        r = re.compile(r'\s*(\d+)\s+(\S+)\s+(\S+)\s+(\d+\.\d+\s+[KMGTP]|\d+)\s+OK\s+(\S+\s+\S+)\s+%s' % re.escape(options.host))
+        r = re.compile(r'\s*(\d+)\s+(\S+)\s+(\S+)\s+(\d+\.\d+\s+[KMGTP]|\d+)\s+OK\s+(\S+\s+\S+)\s+%s' % re.escape(backupid))
         job_id = level = files = bytes = finished = None
         for line in child.before.splitlines():
             m = r.match(line)
@@ -84,7 +89,7 @@ def main(argv):
     except RuntimeError:
         exit_status, message = (CRITICAL, str(sys.exc_info()[1]))
     child.sendeof()
-    child.expect(pexpect.EOF)
+    child.expect_list([pexpect.EOF, pexpect.TIMEOUT])
     print '%s: %s' % (status_message[exit_status], message)
     sys.exit(exit_status)
 

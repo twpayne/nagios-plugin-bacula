@@ -24,12 +24,13 @@ Usage
 
 ### Example ###
 
-	$ ./check_bacula_client -H isdc1101.isdc.unige.ch -w 12h -c 1d
+	$ ./check_bacula_client -H isdc1101.isdc.unige.ch-fd -B isdc1101.isdc.unige.ch-backup -w 12h -c 1d
 	WARNING: Incr, 1493 files, 42.20MB, 2010-02-08 23:01:00 (14.4 hours ago)
 
 ### Options ###
 
-* `-H CLIENT` client name
+* `-H FD_NAME` client file director name
+* `-B BACKUP_NAME`  backup job name
 * `-w PERIOD` generate warning if last successful backup older than `PERIOD`
 * `-c PERIOD` generate critical if last successful backup older than `PERIOD`
 * `-b PATH` path to `bconsole`
