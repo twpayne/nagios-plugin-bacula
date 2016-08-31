@@ -15,7 +15,9 @@ Installation
 ------------
 
 `check_bacula_client` assumes that the `bconsole` program can connect automatically without requiring a username or password.  You may need to edit `bconsole.conf` to acheive this and add the `nagios` user to the `bacula` group.  To test this, try running:
+
 	# su -s `which bconsole` nagios
+
 This should drop you into the `bconsole` shell.  If it does not, check the permissions on `bconsole.conf` and the Bacula management password.
 
 
